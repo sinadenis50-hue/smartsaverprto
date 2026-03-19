@@ -1,9 +1,18 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Stripe = require("stripe");
 
 exports.handler = async (event) => {
   try {
+    if (event.httpMethod !== "POST") {
+      return {
+        statusCode: 405,
+        body: JSON.stringify({ error: "Method not allowed" }),
+      };
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
     const body = JSON.parse(event.body || "{}");
-    const userId = body.userId;
+    const { userId, email } = body;
 
     if (!userId) {
       return {
@@ -14,7 +23,7 @@ exports.handler = async (event) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card"],
+      payment_method_types: ["card", "klarna", "bancontact", "eps"],
       line_items: [
         {
           price_data: {
@@ -27,11 +36,18 @@ exports.handler = async (event) => {
           quantity: 1,
         },
       ],
+
+      client_reference_id: userId,
+
+      customer_email: email || undefined,
+
       metadata: {
-        user_id: userId,
+        userId: userId,
+        email: email || "",
       },
-      success_url: "https://smartsaverpro.netlify.app?paid=true",
-      cancel_url: "https://smartsaverpro.netlify.app?canceled=true",
+
+      success_url: "https://smartsaverpro-git.netlify.app/?success=true",
+      cancel_url: "https://smartsaverpro-git.netlify.app/?canceled=true",
     });
 
     return {
@@ -41,7 +57,9 @@ exports.handler = async (event) => {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({
+        error: error.message || "Server error",
+      }),
     };
   }
 };

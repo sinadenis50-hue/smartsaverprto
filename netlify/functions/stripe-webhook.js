@@ -1,47 +1,66 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Stripe = require("stripe");
+const { createClient } = require("@supabase/supabase-js");
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 exports.handler = async (event) => {
   try {
-    const body = JSON.parse(event.body || "{}");
-    const userId = body.userId;
+    const sig = event.headers["stripe-signature"] || event.headers["Stripe-Signature"];
 
-    if (!userId) {
+    if (!sig) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing userId" }),
+        body: JSON.stringify({ error: "Missing stripe signature" }),
       };
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: "SmartSaver Pro",
-            },
-            unit_amount: 499,
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        user_id: userId,
-      },
-      success_url: "https://smartsaverpro.netlify.app?paid=true",
-      cancel_url: "https://smartsaverpro.netlify.app?canceled=true",
-    });
+    const stripeEvent = stripe.webhooks.constructEvent(
+      event.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+
+    if (stripeEvent.type === "checkout.session.completed") {
+      const session = stripeEvent.data.object;
+
+      const userId =
+        session.client_reference_id ||
+        session.metadata?.userId ||
+        null;
+
+      if (!userId) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: "Missing userId" }),
+        };
+      }
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ is_pro: true })
+        .eq("id", userId);
+
+      if (error) {
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: error.message }),
+        };
+      }
+    }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ url: session.url }),
+      body: JSON.stringify({ received: true }),
     };
-  } catch (error) {
+  } catch (err) {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      statusCode: 400,
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
