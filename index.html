@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -475,7 +476,7 @@
       <div class="helper" id="percentPreview">You will save 20% of your amount.</div>
     </div>
 
-    <button class="pay-btn" onclick="upgradeToPro()">🚀 Upgrade to Pro</button>
+    <button class="pay-btn" onclick="goToCheckout()">🚀 Upgrade to Pro</button>
     <div class="helper" id="proText">One-time payment €4.99 (VAT exempt under §19 UStG)</div>
 
     <div class="grid2">
@@ -778,58 +779,34 @@
       return data;
     }
 
-    async function upgradeToPro() {
-      try {
-        if (!currentUser || !currentUser.id || !currentUser.email) {
-          document.getElementById("errorMsg").innerText = "Please log in first.";
-          document.getElementById("successMsg").innerText = "";
-          return;
-        }
+    async function goToCheckout() {
+      if (!currentUser) {
+        document.getElementById("errorMsg").innerText = "Please log in first.";
+        document.getElementById("successMsg").innerText = "";
+        return;
+      }
 
-        const res = await fetch("/.netlify/functions/create-checkout", {
+      try {
+        const response = await fetch("/.netlify/functions/create-checkout", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             userId: currentUser.id,
-            email: currentUser.email
-          })
+          }),
         });
 
-        const data = await res.json();
+        const data = await response.json();
 
-        if (!res.ok) {
-          document.getElementById("errorMsg").innerText = data.error || "Checkout failed.";
-          document.getElementById("successMsg").innerText = "";
-          return;
+        if (!response.ok) {
+          throw new Error(data.error || "Checkout failed");
         }
 
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          document.getElementById("errorMsg").innerText = "No checkout URL returned.";
-          document.getElementById("successMsg").innerText = "";
-        }
-      } catch (err) {
-        document.getElementById("errorMsg").innerText = "Payment error: " + err.message;
+        window.location.href = data.url;
+      } catch (error) {
+        document.getElementById("errorMsg").innerText = error.message;
         document.getElementById("successMsg").innerText = "";
-      }
-    }
-
-    function handleSuccessFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-
-      if (params.get("success") === "true") {
-        document.getElementById("successMsg").innerText = "Payment completed. Refresh or log in again in a moment.";
-        document.getElementById("errorMsg").innerText = "";
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      if (params.get("canceled") === "true") {
-        document.getElementById("errorMsg").innerText = "Payment canceled.";
-        document.getElementById("successMsg").innerText = "";
-        window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
 
@@ -865,7 +842,6 @@
     window.addEventListener("load", () => {
       goalInput.value = "";
       amountInput.value = "";
-      handleSuccessFromUrl();
     });
 
     supabaseClient.auth.onAuthStateChange(async () => {
