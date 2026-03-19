@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartSaver Pro</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(59,130,246,0.25), transparent 25%),
+        linear-gradient(180deg, #0b1220, #111827);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(17, 24, 39, 0.96);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 26px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      position: relative;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #22c55e, #84cc16);
+      font-size: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .badge {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      color: #111827;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .panel {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .panel-sub {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .field {
+      margin-top: 12px;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #cbd5e1;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      outline: none;
+      background: #111827;
+      color: white;
+      font-size: 15px;
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    select {
+      -webkit-appearance: menulist;
+      appearance: auto;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .btn-signup {
+      background: linear-gradient(90deg, #0ea5e9, #2563eb);
+    }
+
+    .btn-login {
+      background: #475569;
+    }
+
+    .btn-logout {
+      background: linear-gradient(90deg, #7c3aed, #9333ea);
+      margin-top: 10px;
+    }
+
+    .btn-preview {
+      background: linear-gradient(90deg, #0ea5e9, #2563eb);
+    }
+
+    .btn-save {
+      background: linear-gradient(90deg, #22c55e, #84cc16);
+    }
+
+    .pay-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      color: #111827;
+      margin-top: 14px;
+      position: relative;
+      z-index: 20;
+      pointer-events: auto;
+    }
+
+    .helper {
+      color: #cbd5e1;
+      font-size: 13px;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .success {
+      color: #4ade80;
+      font-size: 14px;
+      margin-top: 10px;
+      min-height: 18px;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #f87171;
+      font-size: 14px;
+      margin-top: 10px;
+      min-height: 18px;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .slider-badge {
+      background: rgba(34,197,94,0.18);
+      color: #86efac;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      accent-color: #22c55e;
+      background: transparent;
+    }
+
+    .result-box {
+      margin-top: 16px;
+      background: linear-gradient(135deg, rgba(34,197,94,0.14), rgba(34,197,94,0.05));
+      border: 1px solid rgba(34,197,94,0.20);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .result-title {
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    .result-value {
+      font-size: 38px;
+      font-weight: bold;
+      color: #86efac;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat-title {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    .progress-wrap {
+      margin-top: 14px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .progress-bg {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #22c55e;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .history {
+      margin-top: 16px;
+      background: #0f172a;
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .history-title {
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .clear-btn {
+      width: auto;
+      padding: 10px 16px;
+      background: #ef4444;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .history-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .legal {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      position: relative;
+    }
+
+    .legal a {
+      color: #60a5fa;
+      text-decoration: none;
+      margin: 0 6px;
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .legal a:hover {
+      color: #93c5fd;
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .app * {
+      touch-action: manipulation;
+    }
+
+    @media (max-width: 480px) {
+      .grid2, .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">💰</div>
+        <div>
+          <h1>SmartSaver Pro</h1>
+          <div class="subtitle">Save smarter, track better, and stay consistent.</div>
+        </div>
+      </div>
+      <div class="badge" id="proBadge">FREE</div>
+    </div>
+
+    <div class="panel" id="authPanel">
+      <div class="panel-title">Account</div>
+      <div class="panel-sub">Create an account or sign in to save your data and unlock Pro on your account.</div>
+
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" placeholder="Enter your email">
+      </div>
+
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <input id="authPassword" type="password" placeholder="Enter your password">
+      </div>
+
+      <div class="grid2">
+        <button class="btn-signup" onclick="signUp()">Sign Up</button>
+        <button class="btn-login" onclick="signIn()">Log In</button>
+      </div>
+
+      <div class="success" id="authSuccess"></div>
+      <div class="error" id="authError"></div>
+    </div>
+
+    <div class="panel hidden" id="userPanel">
+      <div class="panel-title">Logged in</div>
+      <div class="panel-sub" id="currentUserText">You are signed in.</div>
+      <button class="btn-logout" onclick="signOutUser()">Log Out</button>
+    </div>
+
+    <div class="field">
+      <label for="currency">Currency</label>
+      <select id="currency">
+        <option value="EUR (€)">EUR (€)</option>
+        <option value="USD ($)">USD ($)</option>
+        <option value="GBP (£)">GBP (£)</option>
+        <option value="TRY (₺)">TRY (₺)</option>
+        <option value="CHF (Fr)">CHF (Fr)</option>
+        <option value="CAD (C$)">CAD (C$)</option>
+        <option value="AUD (A$)">AUD (A$)</option>
+        <option value="AED (د.إ)">AED (د.إ)</option>
+        <option value="SAR (﷼)">SAR (﷼)</option>
+        <option value="JPY (¥)">JPY (¥)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="amount">Amount</label>
+      <input id="amount" type="number" placeholder="Enter amount">
+    </div>
+
+    <div class="field">
+      <label for="goal">Savings Goal</label>
+      <input id="goal" type="number" placeholder="Enter savings goal">
+    </div>
+
+    <div class="field">
+      <div class="slider-row">
+        <label for="percent" style="margin:0;">Savings Percentage</label>
+        <div class="slider-badge" id="percentValue">20%</div>
+      </div>
+      <input id="percent" type="range" min="0" max="100" value="20">
+      <div class="helper" id="percentPreview">You will save 20% of your amount.</div>
+    </div>
+
+    <button class="pay-btn" onclick="goToCheckout()">🚀 Upgrade to Pro</button>
+    <div class="helper" id="proText">One-time payment €4.99 (VAT exempt under §19 UStG)</div>
+
+    <div class="grid2">
+      <button class="btn-preview" onclick="calculatePreview()">Calculate Preview</button>
+      <button class="btn-save" onclick="addSaving()">Add Saving</button>
+    </div>
+
+    <div class="result-box">
+      <div class="result-title">Preview Result</div>
+      <div class="result-value" id="result">0 €</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-title">Remaining to Goal</div>
+        <div class="stat-value" id="remaining">0 €</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Total Saved</div>
+        <div class="stat-value" id="saved">0 €</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span>Total Progress</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="progress-bg">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <div class="success" id="successMsg"></div>
+    <div class="error" id="errorMsg"></div>
+
+    <div class="history">
+      <div class="history-top">
+        <div class="history-title">History</div>
+        <button class="clear-btn" onclick="clearHistory()">Clear</button>
+      </div>
+      <div id="historyList">No saved calculations yet.</div>
+    </div>
+
+    <div class="legal">
+      <a href="impressum.html">Impressum</a> |
+      <a href="privacy.html">Privacy Policy</a> |
+      <a href="terms.html">Terms</a>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ccasnffyugapyfvcjefv.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_vFzg8kZCp6j9C5PQI30U5A_A__m4WHp";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+    let isPro = false;
+    let lastPreview = 0;
+
+    const authPanel = document.getElementById("authPanel");
+    const userPanel = document.getElementById("userPanel");
+    const currentUserText = document.getElementById("currentUserText");
+    const authSuccess = document.getElementById("authSuccess");
+    const authError = document.getElementById("authError");
+
+    const percentSlider = document.getElementById("percent");
+    const percentValue = document.getElementById("percentValue");
+    const percentPreview = document.getElementById("percentPreview");
+    const goalInput = document.getElementById("goal");
+    const amountInput = document.getElementById("amount");
+    const currencyInput = document.getElementById("currency");
+
+    percentSlider.addEventListener("input", function () {
+      percentValue.innerText = this.value + "%";
+      percentPreview.innerText = "You will save " + this.value + "% of your amount.";
+      localStorage.setItem("percent", this.value);
+    });
+
+    function getCurrencyText() {
+      return currencyInput.value;
+    }
+
+    function getCurrencySymbol(currencyText) {
+      const match = currencyText.match(/\((.*?)\)/);
+      return match ? match[1] : currencyText;
+    }
+
+    function formatMoney(value, currencyText) {
+      const symbol = getCurrencySymbol(currencyText);
+      const safeValue = Number(value) || 0;
+      return safeValue.toFixed(2) + " " + symbol;
+    }
+
+    function updateProUI() {
+      const badge = document.getElementById("proBadge");
+      const proText = document.getElementById("proText");
+
+      if (isPro) {
+        badge.innerText = "PRO";
+        proText.innerText = "Pro account active. Unlimited saving entries available.";
+      } else {
+        badge.innerText = "FREE";
+        proText.innerText = "One-time payment €4.99 (VAT exempt under §19 UStG)";
+      }
+    }
+
+    function getStorageKey() {
+      if (!currentUser) return "guest_data";
+      return "data_" + currentUser.id;
+    }
+
+    function getData() {
+      const raw = JSON.parse(localStorage.getItem(getStorageKey())) || [];
+      return raw.filter(item => item && !isNaN(Number(item.savings)));
+    }
+
+    function saveData(data) {
+      localStorage.setItem(getStorageKey(), JSON.stringify(data));
+    }
+
+    function updateStats() {
+      const currency = getCurrencyText();
+      const goal = Number(goalInput.value) || 0;
+      const data = getData();
+
+      const totalSaved = data
+        .filter(item => item.currency === currency)
+        .reduce((sum, item) => sum + Number(item.savings || 0), 0);
+
+      let remaining = goal - totalSaved;
+      if (remaining < 0) remaining = 0;
+
+      let progress = 0;
+      if (goal > 0) progress = (totalSaved / goal) * 100;
+      if (progress > 100) progress = 100;
+
+      document.getElementById("saved").innerText = formatMoney(totalSaved, currency);
+      document.getElementById("remaining").innerText = formatMoney(remaining, currency);
+      document.getElementById("progressText").innerText = progress.toFixed(0) + "%";
+      document.getElementById("progressBar").style.width = progress + "%";
+    }
+
+    function renderHistory() {
+      const historyList = document.getElementById("historyList");
+      const data = getData();
+
+      if (!data.length) {
+        historyList.innerHTML = "No saved calculations yet.";
+        return;
+      }
+
+      historyList.innerHTML = data
+        .slice()
+        .reverse()
+        .map(item => `
+          <div class="history-item">
+            Amount: ${formatMoney(item.amount, item.currency)} → Saved: ${formatMoney(item.savings, item.currency)} (${item.percent}%)<br>
+            <small>${item.date}</small>
+          </div>
+        `)
+        .join("");
+    }
+
+    function calculatePreview() {
+      const amount = Number(amountInput.value);
+      const percent = Number(percentSlider.value) / 100;
+      const currency = getCurrencyText();
+
+      if (!amount || amount <= 0) {
+        document.getElementById("errorMsg").innerText = "Please enter a valid amount.";
+        document.getElementById("successMsg").innerText = "";
+        document.getElementById("result").innerText = "0 " + getCurrencySymbol(currency);
+        lastPreview = 0;
+        return;
+      }
+
+      lastPreview = amount * percent;
+      document.getElementById("result").innerText = formatMoney(lastPreview, currency);
+      document.getElementById("errorMsg").innerText = "";
+      document.getElementById("successMsg").innerText = "";
+    }
+
+    function addSaving() {
+      const amount = Number(amountInput.value);
+      const percent = Number(percentSlider.value);
+      const currency = getCurrencyText();
+
+      if (!currentUser) {
+        document.getElementById("errorMsg").innerText = "Please log in first to save your data.";
+        document.getElementById("successMsg").innerText = "";
+        return;
+      }
+
+      if (!amount || amount <= 0) {
+        document.getElementById("errorMsg").innerText = "Please enter a valid amount first.";
+        return;
+      }
+
+      if (lastPreview <= 0) {
+        document.getElementById("errorMsg").innerText = "Press Calculate Preview first.";
+        return;
+      }
+
+      const data = getData();
+
+      if (!isPro && data.length >= 3) {
+        document.getElementById("errorMsg").innerText = "Free limit reached. Upgrade to Pro.";
+        document.getElementById("successMsg").innerText = "";
+        return;
+      }
+
+      data.push({
+        amount: amount,
+        savings: lastPreview,
+        percent: percent,
+        currency: currency,
+        date: new Date().toLocaleString()
+      });
+
+      saveData(data);
+      renderHistory();
+      updateStats();
+
+      document.getElementById("errorMsg").innerText = "";
+      document.getElementById("successMsg").innerText = "Saving added successfully.";
+    }
+
+    function clearHistory() {
+      if (!currentUser) {
+        document.getElementById("errorMsg").innerText = "Please log in first.";
+        return;
+      }
+
+      localStorage.removeItem(getStorageKey());
+      document.getElementById("result").innerText = "0 " + getCurrencySymbol(getCurrencyText());
+      document.getElementById("successMsg").innerText = "";
+      document.getElementById("errorMsg").innerText = "";
+      renderHistory();
+      updateStats();
+    }
+
+    async function signUp() {
+      authSuccess.innerText = "";
+      authError.innerText = "";
+
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value.trim();
+
+      if (!email || !password) {
+        authError.innerText = "Please enter email and password.";
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+
+      if (error) authError.innerText = error.message;
+      else authSuccess.innerText = "Account created. Check your email if confirmation is required.";
+    }
+
+    async function signIn() {
+      authSuccess.innerText = "";
+      authError.innerText = "";
+
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value.trim();
+
+      if (!email || !password) {
+        authError.innerText = "Please enter email and password.";
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      if (error) authError.innerText = error.message;
+      else await loadCurrentUser();
+    }
+
+    async function signOutUser() {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      isPro = false;
+      authPanel.classList.remove("hidden");
+      userPanel.classList.add("hidden");
+      updateProUI();
+      renderHistory();
+      updateStats();
+    }
+
+    async function fetchProfile() {
+      if (!currentUser) return null;
+
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("id, email, is_pro")
+        .eq("id", currentUser.id)
+        .single();
+
+      if (error) return null;
+      return data;
+    }
+
+    async function goToCheckout() {
+      if (!currentUser) {
+        document.getElementById("errorMsg").innerText = "Please log in first.";
+        document.getElementById("successMsg").innerText = "";
+        return;
+      }
+
+      try {
+        const response = await fetch("/.netlify/functions/create-checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Checkout failed");
+        }
+
+        window.location.href = data.url;
+      } catch (error) {
+        document.getElementById("errorMsg").innerText = error.message;
+        document.getElementById("successMsg").innerText = "";
+      }
+    }
+
+    async function loadCurrentUser() {
+      const { data } = await supabaseClient.auth.getUser();
+      currentUser = data?.user || null;
+
+      if (currentUser) {
+        authPanel.classList.add("hidden");
+        userPanel.classList.remove("hidden");
+        currentUserText.innerText = "Signed in as: " + currentUser.email;
+      } else {
+        authPanel.classList.remove("hidden");
+        userPanel.classList.add("hidden");
+        currentUserText.innerText = "";
+      }
+
+      const profile = await fetchProfile();
+      isPro = !!profile?.is_pro;
+
+      updateProUI();
+      renderHistory();
+      updateStats();
+    }
+
+    const savedPercent = localStorage.getItem("percent");
+    if (savedPercent) {
+      percentSlider.value = savedPercent;
+      percentValue.innerText = savedPercent + "%";
+      percentPreview.innerText = "You will save " + savedPercent + "% of your amount.";
+    }
+
+    window.addEventListener("load", () => {
+      goalInput.value = "";
+      amountInput.value = "";
+    });
+
+    supabaseClient.auth.onAuthStateChange(async () => {
+      await loadCurrentUser();
+    });
+
+    loadCurrentUser();
+  </script>
+</body>
+</html>
