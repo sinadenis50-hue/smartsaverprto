@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartSaver Pro</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(59,130,246,0.25), transparent 25%),
+        linear-gradient(180deg, #0b1220, #111827);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(17, 24, 39, 0.96);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 26px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #22c55e, #84cc16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+
+    .badge {
+      background: #facc15;
+      color: #111827;
+      font-weight: bold;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .muted {
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 14px;
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
+      color: white;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: #94a3b8;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #signup {
+      background: linear-gradient(90deg, #38bdf8, #2563eb);
+      color: white;
+    }
+
+    #login {
+      background: #cbd5e1;
+      color: #0f172a;
+    }
+
+    #upgrade {
+      width: 100%;
+      margin-top: 16px;
+      background: #facc15;
+      color: #111827;
+    }
+
+    .range-wrap {
+      margin-top: 12px;
+    }
+
+    input[type="range"] {
+      padding: 0;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-top: 8px;
+    }
+
+    #status {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #93c5fd;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">💰</div>
+        <div>
+          <h1 class="title">SmartSaver Pro</h1>
+          <p class="subtitle">Save smarter, track better, and stay consistent.</p>
+        </div>
+      </div>
+      <div class="badge">FREE</div>
+    </div>
+
+    <div class="card">
+      <h2>Account</h2>
+      <div class="muted">
+        Create an account or sign in to save your data and unlock Pro on your account.
+      </div>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="Enter your email" />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter your password" />
+
+      <div class="row">
+        <button id="signup" type="button">Sign Up</button>
+        <button id="login" type="button">Log In</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <label for="currency">Currency</label>
+      <select id="currency">
+        <option value="EUR">EUR (€)</option>
+        <option value="USD">USD ($)</option>
+        <option value="GBP">GBP (£)</option>
+      </select>
+
+      <label for="amount">Amount</label>
+      <input id="amount" type="number" placeholder="Enter amount" />
+
+      <label for="goal">Savings Goal</label>
+      <input id="goal" type="number" placeholder="Enter savings goal" />
+
+      <label for="percentage">Savings Percentage</label>
+      <div class="range-wrap">
+        <input id="percentage" type="range" min="1" max="100" value="15" />
+      </div>
+
+      <div class="small">
+        You will save <span id="percentText">15</span>% of your amount.
+      </div>
+
+      <button id="upgrade" type="button">✨ Upgrade to Pro</button>
+
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <script>
+    // ΒΑΛΕ ΕΔΩ ΤΑ ΔΙΚΑ ΣΟΥ ΑΠΟ SUPABASE > SETTINGS > API
+    const supabaseUrl = "PASTE_YOUR_SUPABASE_URL_HERE";
+    const supabaseAnonKey = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+    const statusEl = document.getElementById("status");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const signUpBtn = document.getElementById("signup");
+    const loginBtn = document.getElementById("login");
+    const upgradeBtn = document.getElementById("upgrade");
+    const percentageInput = document.getElementById("percentage");
+    const percentText = document.getElementById("percentText");
+
+    percentText.textContent = percentageInput.value;
+    percentageInput.addEventListener("input", () => {
+      percentText.textContent = percentageInput.value;
+    });
+
+    function setStatus(message) {
+      statusEl.textContent = message;
+    }
+
+    function validateInputs() {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) {
+        setStatus("Please enter email and password.");
+        return null;
+      }
+
+      if (password.length < 6) {
+        setStatus("Password must be at least 6 characters.");
+        return null;
+      }
+
+      return { email, password };
+    }
+
+    if (
+      supabaseUrl === "PASTE_YOUR_SUPABASE_URL_HERE" ||
+      supabaseAnonKey === "PASTE_YOUR_SUPABASE_ANON_KEY_HERE"
+    ) {
+      setStatus("Add your Supabase URL and Anon Key first.");
+    }
+
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    signUpBtn.addEventListener("click", async () => {
+      const values = validateInputs();
+      if (!values) return;
+
+      setStatus("Creating account...");
+
+      const { error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password
+      });
+
+      if (error) {
+        setStatus("Sign up error: " + error.message);
+      } else {
+        setStatus("Account created. Check your email if confirmation is enabled.");
+      }
+    });
+
+    loginBtn.addEventListener("click", async () => {
+      const values = validateInputs();
+      if (!values) return;
+
+      setStatus("Logging in...");
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password
+      });
+
+      if (error) {
+        setStatus("Login error: " + error.message);
+      } else {
+        setStatus("Login successful.");
+      }
+    });
+
+    upgradeBtn.addEventListener("click", () => {
+      setStatus("Upgrade button works. Payment setup comes next.");
+    });
+  </script>
+</body>
+</html>
